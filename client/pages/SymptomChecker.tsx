@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { ArrowLeft, Heart, AlertCircle, CheckCircle, AlertTriangle } from "lucide-react";
+import { ArrowLeft, AlertCircle, CheckCircle, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
+import Layout from "@/components/Layout";
 
 interface SymptomData {
   age: string;
@@ -35,7 +36,6 @@ const triageModel = (symptoms: SymptomData): TriageResult => {
   let riskScore = 0;
   const conditions: string[] = [];
 
-  // Emergency checks (highest priority)
   if (
     symptoms.severePain ||
     symptoms.fainting ||
@@ -57,11 +57,9 @@ const triageModel = (symptoms: SymptomData): TriageResult => {
     };
   }
 
-  // PCOD/PCOS Risk Assessment
   const hasIrregularCycle = symptoms.periodRegular === "no";
   const hasHormonalSigns =
     symptoms.acne_hirsutism_weight || symptoms.difficulty_conceiving;
-  const hasWeight = symptoms.knownConditions?.includes("weight");
   const hasPCODHistory = symptoms.familyHistory && hasIrregularCycle;
 
   if (hasIrregularCycle) riskScore += 2;
@@ -73,7 +71,6 @@ const triageModel = (symptoms: SymptomData): TriageResult => {
     conditions.push("Possible PCOD/PCOS");
   }
 
-  // Endometriosis Risk Assessment
   const hasPelvicPain = symptoms.pelvicPain && symptoms.symptomDuration !== "weeks";
   const hasPainIntercourse = symptoms.painIntercourse;
   const hasLongDuration = parseInt(symptoms.symptomDuration || "0") > 6;
@@ -86,19 +83,16 @@ const triageModel = (symptoms: SymptomData): TriageResult => {
     conditions.push("Possible Endometriosis");
   }
 
-  // Heavy Bleeding Assessment
   if (symptoms.heavyBleeding) {
     riskScore += 2;
     conditions.push("Possible Bleeding Disorder or Fibroids");
   }
 
-  // Thyroid Assessment
   if (symptoms.knownConditions?.includes("thyroid")) {
     riskScore += 2;
     conditions.push("Known Thyroid Condition");
   }
 
-  // Dysmenorrhea Assessment
   if (symptoms.pelvicPain && !hasPainIntercourse) {
     riskScore += 1;
     if (!conditions.includes("Possible Endometriosis")) {
@@ -106,7 +100,6 @@ const triageModel = (symptoms: SymptomData): TriageResult => {
     }
   }
 
-  // Determine triage level based on risk score and duration
   if (riskScore >= 6 || (riskScore >= 4 && hasLongDuration)) {
     return {
       level: "high",
@@ -152,7 +145,7 @@ const triageModel = (symptoms: SymptomData): TriageResult => {
         "Contact a doctor if symptoms worsen or new symptoms appear",
         "Schedule regular check-ups with your healthcare provider",
       ],
-      icon: <Heart className="w-12 h-12 text-green-600" />,
+      icon: <CheckCircle className="w-12 h-12 text-green-600" />,
       colorClasses: "bg-green-50 border-green-300",
     };
   }
@@ -218,47 +211,33 @@ export default function SymptomChecker() {
 
   if (step === "results" && triageResult) {
     return (
-      <div className="min-h-screen bg-white">
-        {/* Header */}
-        <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center">
-                <Heart className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent">
-                Cherry
-              </span>
-            </Link>
-            <button
-              onClick={() => {
-                setStep("form");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:text-purple-600 transition"
-            >
-              <ArrowLeft className="w-4 h-4" /> New Check
-            </button>
-          </div>
-        </nav>
-
-        {/* Results */}
+      <Layout>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className={`border-l-8 rounded-lg p-8 mb-8 ${triageResult.colorClasses}`}>
+          <button
+            onClick={() => {
+              setStep("form");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:text-purple-600 transition-colors font-medium mb-8 hover:bg-slate-100 rounded-lg"
+          >
+            <ArrowLeft className="w-4 h-4" /> Start New Assessment
+          </button>
+
+          <div className={`border-l-8 rounded-2xl p-8 mb-8 ${triageResult.colorClasses}`}>
             <div className="flex gap-6 items-start">
               {triageResult.icon}
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                <h1 className="text-4xl font-bold text-slate-900 mb-3">
                   {triageResult.title}
                 </h1>
-                <p className="text-lg text-slate-700 mb-4">
+                <p className="text-lg text-slate-700">
                   {triageResult.description}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-50 rounded-lg p-8 mb-8">
+          <div className="bg-slate-50 rounded-2xl p-8 mb-8 border border-slate-200">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">
               Recommended Next Steps
             </h2>
@@ -268,13 +247,13 @@ export default function SymptomChecker() {
                   <span className="text-purple-600 font-bold flex-shrink-0">
                     ✓
                   </span>
-                  <span className="text-slate-700">{rec}</span>
+                  <span className="text-slate-700 leading-relaxed">{rec}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-50 to-cyan-50 rounded-lg p-8 border border-purple-200 mb-8">
+          <div className="bg-gradient-to-br from-purple-50 to-cyan-50 rounded-2xl p-8 border border-purple-200 mb-8">
             <h3 className="text-xl font-bold text-slate-900 mb-4">
               📊 Assessment Summary
             </h3>
@@ -293,7 +272,7 @@ export default function SymptomChecker() {
               </p>
               <div>
                 <strong>Symptoms Present:</strong>
-                <ul className="mt-2 ml-4 list-disc space-y-1">
+                <ul className="mt-2 ml-4 list-disc space-y-1 text-slate-700">
                   {formData.pelvicPain && <li>Pelvic pain</li>}
                   {formData.heavyBleeding && <li>Heavy bleeding</li>}
                   {formData.painIntercourse && <li>Pain during intercourse</li>}
@@ -309,51 +288,39 @@ export default function SymptomChecker() {
             </div>
           </div>
 
-          <div className="bg-blue-50 rounded-lg p-6 border border-blue-200 mb-8">
-            <p className="text-sm text-blue-800">
+          <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200 mb-8">
+            <p className="text-sm text-blue-800 leading-relaxed">
               <strong>⚠️ Disclaimer:</strong> This tool provides educational information and suggested triage guidance based on your responses. It does NOT replace professional medical diagnosis or treatment. Always consult a qualified healthcare provider for proper evaluation and care.
             </p>
           </div>
 
-          <button
+          <Link
+            to="/symptom-checker"
             onClick={() => setStep("form")}
-            className="w-full px-8 py-3 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+            className="w-full px-8 py-3 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-block text-center"
           >
             Start New Assessment
-          </button>
+          </Link>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center">
-              <Heart className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent">
-              Cherry
-            </span>
-          </Link>
-        </div>
-      </nav>
-
-      {/* Form */}
+    <Layout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="mb-12">
-          <h1 className="text-5xl font-bold text-slate-900 mb-4">Symptom Checker</h1>
-          <p className="text-xl text-slate-600">
-            Answer questions about your symptoms to get personalized guidance. This is not a diagnosis.
+          <h1 className="text-5xl sm:text-6xl font-bold text-slate-900 mb-4">
+            Symptom Checker
+          </h1>
+          <p className="text-xl text-slate-600 leading-relaxed">
+            Answer questions about your symptoms to get personalized guidance. This is not a diagnosis and does not replace professional medical advice.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Demographics */}
-          <div className="bg-slate-50 rounded-lg p-8 border border-slate-200">
+          <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Personal Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -366,7 +333,7 @@ export default function SymptomChecker() {
                   value={formData.age}
                   onChange={handleInputChange}
                   placeholder="Enter your age"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
                 />
               </div>
               <div>
@@ -379,7 +346,7 @@ export default function SymptomChecker() {
                   value={formData.cycleLength}
                   onChange={handleInputChange}
                   placeholder="e.g., 28"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
                 />
               </div>
             </div>
@@ -390,16 +357,16 @@ export default function SymptomChecker() {
               </label>
               <div className="space-y-2">
                 {["yes", "no", "unsure"].map((option) => (
-                  <label key={option} className="flex items-center gap-3 cursor-pointer">
+                  <label key={option} className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white transition">
                     <input
                       type="radio"
                       name="periodRegular"
                       value={option}
                       checked={formData.periodRegular === option}
                       onChange={handleInputChange}
-                      className="w-4 h-4 text-purple-600"
+                      className="w-4 h-4 text-purple-600 cursor-pointer"
                     />
-                    <span className="text-slate-700 capitalize">{option}</span>
+                    <span className="text-slate-700 capitalize font-medium">{option}</span>
                   </label>
                 ))}
               </div>
@@ -407,9 +374,9 @@ export default function SymptomChecker() {
           </div>
 
           {/* Symptoms */}
-          <div className="bg-slate-50 rounded-lg p-8 border border-slate-200">
+          <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Symptoms</h2>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[
                 { name: "pelvicPain", label: "Pelvic pain before or during periods?" },
                 { name: "heavyBleeding", label: "Heavy bleeding or clots?" },
@@ -418,39 +385,13 @@ export default function SymptomChecker() {
                 { name: "acne_hirsutism_weight", label: "Acne, facial hair growth, or weight gain?" },
                 { name: "affectingDailyLife", label: "Are symptoms affecting daily activities?" },
               ].map((symptom) => (
-                <label key={symptom.name} className="flex items-center gap-3 cursor-pointer">
+                <label key={symptom.name} className="flex items-center gap-3 cursor-pointer p-3 rounded hover:bg-white transition">
                   <input
                     type="checkbox"
                     name={symptom.name}
                     checked={formData[symptom.name as keyof SymptomData] as boolean}
                     onChange={handleInputChange}
-                    className="w-4 h-4 text-purple-600 rounded"
-                  />
-                  <span className="text-slate-700">{symptom.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Red Flags */}
-          <div className="bg-red-50 rounded-lg p-8 border border-red-200">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">⚠️ Urgent Symptoms</h2>
-            <p className="text-slate-700 mb-4">
-              If you experience any of the following, seek immediate medical care:
-            </p>
-            <div className="space-y-4">
-              {[
-                { name: "severePain", label: "Sudden severe abdominal pain?" },
-                { name: "fainting", label: "Fainting or dizziness with bleeding?" },
-                { name: "vomiting", label: "Fever or vomiting with pain?" },
-              ].map((symptom) => (
-                <label key={symptom.name} className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name={symptom.name}
-                    checked={formData[symptom.name as keyof SymptomData] as boolean}
-                    onChange={handleInputChange}
-                    className="w-4 h-4 text-red-600 rounded"
+                    className="w-5 h-5 text-purple-600 rounded cursor-pointer"
                   />
                   <span className="text-slate-700 font-medium">{symptom.label}</span>
                 </label>
@@ -458,8 +399,34 @@ export default function SymptomChecker() {
             </div>
           </div>
 
+          {/* Red Flags */}
+          <div className="bg-red-50 rounded-2xl p-8 border border-red-200">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">⚠️ Urgent Symptoms</h2>
+            <p className="text-slate-700 mb-4 font-medium">
+              If you experience any of the following, seek immediate medical care:
+            </p>
+            <div className="space-y-3">
+              {[
+                { name: "severePain", label: "Sudden severe abdominal pain?" },
+                { name: "fainting", label: "Fainting or dizziness with bleeding?" },
+                { name: "vomiting", label: "Fever or vomiting with pain?" },
+              ].map((symptom) => (
+                <label key={symptom.name} className="flex items-center gap-3 cursor-pointer p-3 rounded hover:bg-red-100 transition">
+                  <input
+                    type="checkbox"
+                    name={symptom.name}
+                    checked={formData[symptom.name as keyof SymptomData] as boolean}
+                    onChange={handleInputChange}
+                    className="w-5 h-5 text-red-600 rounded cursor-pointer"
+                  />
+                  <span className="text-slate-700 font-semibold">{symptom.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           {/* Medical History */}
-          <div className="bg-slate-50 rounded-lg p-8 border border-slate-200">
+          <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Medical History</h2>
 
             <div className="mb-6">
@@ -469,31 +436,31 @@ export default function SymptomChecker() {
               <div className="space-y-2">
                 {["PCOD", "endometriosis", "thyroid", "anemia", "weight"].map(
                   (condition) => (
-                    <label key={condition} className="flex items-center gap-3 cursor-pointer">
+                    <label key={condition} className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white transition">
                       <input
                         type="checkbox"
                         checked={formData.knownConditions.includes(condition)}
                         onChange={(e) =>
                           handleConditionChange(condition, e.target.checked)
                         }
-                        className="w-4 h-4 text-purple-600 rounded"
+                        className="w-5 h-5 text-purple-600 rounded cursor-pointer"
                       />
-                      <span className="text-slate-700 capitalize">{condition}</span>
+                      <span className="text-slate-700 capitalize font-medium">{condition}</span>
                     </label>
                   )
                 )}
               </div>
             </div>
 
-            <label className="flex items-center gap-3 cursor-pointer mb-6">
+            <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white transition mb-6">
               <input
                 type="checkbox"
                 name="familyHistory"
                 checked={formData.familyHistory}
                 onChange={handleInputChange}
-                className="w-4 h-4 text-purple-600 rounded"
+                className="w-5 h-5 text-purple-600 rounded cursor-pointer"
               />
-              <span className="text-slate-700">
+              <span className="text-slate-700 font-medium">
                 Family history of hormonal or reproductive issues?
               </span>
             </label>
@@ -506,7 +473,7 @@ export default function SymptomChecker() {
                 name="symptomDuration"
                 value={formData.symptomDuration}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
               >
                 <option value="">Select duration...</option>
                 <option value="weeks">Less than 1 month</option>
@@ -521,7 +488,7 @@ export default function SymptomChecker() {
           </div>
 
           {/* Additional Info */}
-          <div className="bg-slate-50 rounded-lg p-8 border border-slate-200">
+          <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Additional Information</h2>
 
             <div className="mb-6">
@@ -533,7 +500,7 @@ export default function SymptomChecker() {
                 value={formData.medications}
                 onChange={handleInputChange}
                 placeholder="List any medications, supplements, or treatments..."
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition resize-none"
                 rows={3}
               />
             </div>
@@ -547,16 +514,16 @@ export default function SymptomChecker() {
                 value={formData.symptomDescription}
                 onChange={handleInputChange}
                 placeholder="Please describe your symptoms, when they started, and any patterns you've noticed..."
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition resize-none"
                 rows={4}
               />
             </div>
           </div>
 
           {/* Consent */}
-          <div className="bg-gradient-to-br from-purple-50 to-cyan-50 rounded-lg p-8 border border-purple-200">
+          <div className="bg-gradient-to-br from-purple-50 to-cyan-50 rounded-2xl p-8 border border-purple-200">
             <h2 className="text-xl font-bold text-slate-900 mb-4">Privacy & Usage</h2>
-            <p className="text-slate-700 mb-4">
+            <p className="text-slate-700 mb-4 leading-relaxed">
               Your responses are provided for educational purposes only and do not constitute medical advice. This tool is not a substitute for professional medical evaluation.
             </p>
             <p className="text-sm text-slate-600">
@@ -567,19 +534,19 @@ export default function SymptomChecker() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-lg font-bold text-lg hover:shadow-xl transition-all"
+            className="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-xl font-bold text-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
           >
             Get Your Triage Assessment
           </button>
 
           <Link
             to="/"
-            className="block text-center text-slate-600 hover:text-purple-600 transition font-medium"
+            className="block text-center text-slate-600 hover:text-purple-600 transition font-medium py-3 hover:bg-slate-50 rounded-lg"
           >
             ← Back to Home
           </Link>
         </form>
       </div>
-    </div>
+    </Layout>
   );
 }
