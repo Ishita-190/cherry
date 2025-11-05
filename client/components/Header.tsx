@@ -6,10 +6,10 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navLinks = [
-    { label: "Features", href: "/#features" },
-    { label: "Period Tracker", href: "/period-tracker" },
-    { label: "Our Mission", href: "/our-mission" },
-    { label: "Symptom Checker", href: "/symptom-checker" },
+    { label: "Features", href: "/#features", isExternal: true },
+    { label: "Period Tracker", href: "/period-tracker", isExternal: false },
+    { label: "Our Mission", href: "/our-mission", isExternal: false },
+    { label: "Symptom Checker", href: "/symptom-checker", isExternal: false },
   ];
 
   return (
@@ -31,16 +31,27 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-sm font-medium text-slate-700 hover:text-purple-600 transition-colors duration-200 relative group"
-              >
-                {link.label}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-cyan-500 group-hover:w-full transition-all duration-300" />
-              </a>
-            ))}
+            {navLinks.map((link) => 
+              link.isExternal ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="text-sm font-medium text-slate-700 hover:text-purple-600 transition-colors duration-200 relative group"
+                >
+                  {link.label}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-cyan-500 group-hover:w-full transition-all duration-300" />
+                </a>
+              ) : (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="text-sm font-medium text-slate-700 hover:text-purple-600 transition-colors duration-200 relative group"
+                >
+                  {link.label}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-cyan-500 group-hover:w-full transition-all duration-300" />
+                </Link>
+              )
+            )}
             <button className="ml-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-lg font-medium hover:shadow-lg hover:scale-105 transition-all duration-200">
               Get Started
             </button>
@@ -63,16 +74,27 @@ export default function Header() {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="mt-4 md:hidden pb-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => 
+              link.isExternal ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors duration-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors duration-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
             <button className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200">
               Get Started
             </button>
