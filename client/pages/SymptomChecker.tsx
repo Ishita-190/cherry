@@ -291,7 +291,7 @@ export default function SymptomChecker() {
               <p>
                 <strong>Symptom Duration:</strong> {formData.symptomDuration ? `${formData.symptomDuration} months` : "Not specified"}
               </p>
-              <p>
+              <div>
                 <strong>Symptoms Present:</strong>
                 <ul className="mt-2 ml-4 list-disc space-y-1">
                   {formData.pelvicPain && <li>Pelvic pain</li>}
@@ -305,7 +305,7 @@ export default function SymptomChecker() {
                     !formData.difficulty_conceiving &&
                     !formData.acne_hirsutism_weight && <li>None reported</li>}
                 </ul>
-              </p>
+              </div>
             </div>
           </div>
 
