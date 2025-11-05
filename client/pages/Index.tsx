@@ -466,31 +466,37 @@ export default function Index() {
               {
                 title: "PCOD / PCOS",
                 desc: "WHO Fact Sheet: Comprehensive overview of polycystic ovary syndrome prevalence and management",
+                link: "/diseases/pcod"
               },
               {
                 title: "Endometriosis",
                 desc: "NIH Research: In-depth research on endometriosis pathology, diagnosis, and treatment options",
+                link: "/diseases/endometriosis"
               },
               {
                 title: "Women's Health Gap",
                 desc: "Nature (2023): The gender gap in healthcare research and its impact on women's health outcomes",
+                link: "/diseases/womens-health-gap"
               },
               {
                 title: "Diagnostic Delays",
                 desc: "BMJ: The long wait for endometriosis diagnosis and barriers to early detection",
+                link: "/diseases/endometriosis"
               },
               {
                 title: "Menstrual Health",
                 desc: "UNFPA: Global research on menstrual health, equity, and access to care",
+                link: "/diseases/womens-health-gap"
               },
               {
                 title: "Research Collaboration",
                 desc: "Partner with us to improve diagnostic tools through anonymized data contribution",
+                link: "/symptom-checker"
               },
             ].map((resource) => (
-              <a
+              <Link
                 key={resource.title}
-                href="#"
+                to={resource.link}
                 className="bg-white rounded-xl p-6 border border-slate-200 hover:shadow-lg hover:-translate-y-2 transition-all duration-300 group"
               >
                 <h4 className="font-bold text-slate-900 mb-2 group-hover:text-purple-600 transition-colors">
@@ -500,8 +506,8 @@ export default function Index() {
                 <span className="text-purple-600 font-semibold text-sm group-hover:translate-x-1 inline-block transition-transform">
                   Learn more →
                 </span>
-              </a>
-            ))}
+              </Link>
+            ))
           </div>
         </div>
       </section>
