@@ -9,23 +9,69 @@ import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 
 interface SymptomData {
+  // Basic & Demographic
   age: string;
+  pregnant: string;
+  genderAtBirth: string;
+  breastfeeding: string;
+  lastPeriod: string;
+  
+  // Menstrual & Cycle History
+  periodsRegular: string;
   cycleLength: string;
-  periodRegular: string;
-  pelvicPain: boolean;
-  heavyBleeding: boolean;
-  painIntercourse: boolean;
-  difficulty_conceiving: boolean;
-  acne_hirsutism_weight: boolean;
-  knownConditions: string[];
-  familyHistory: boolean;
-  symptomDescription: string;
+  heavyBleeding: string;
+  pelvicPain: string;
+  painScale: string;
+  bleedingBetween: string;
+  missedPeriods: string;
+  
+  // Pain & Symptom Severity
+  chronicPelvicPain: string;
+  painInterference: string;
+  painDuringActivities: string;
   symptomDuration: string;
+  
+  // PCOS & Hormonal Screening
+  acneHairSkin: string;
+  weightGain: string;
+  hairThinning: string;
+  diabetesHistory: string;
+  
+  // Endometriosis Screening
+  bowelPain: string;
+  radiatingPain: string;
+  ovarianCysts: string;
+  
+  // Thyroid Screening
+  fatigue: string;
+  temperatureSensitivity: string;
+  weightChanges: string;
+  moodChanges: string;
+  
+  // UTI / Bladder Screening
+  burningUrination: string;
+  urinaryUrgency: string;
+  urineChanges: string;
+  
+  // Breast Health
+  breastLumps: string;
+  nippleDischarge: string;
+  breastSkinChanges: string;
+  familyBreastCancer: string;
+  
+  // Fertility & Reproductive
+  tryingConceive: string;
+  conceivingDifficulty: string;
+  pregnancyHistory: string;
+  
+  // Red-Flag / Emergency Symptoms
+  severePain: string;
+  feverVomiting: string;
+  tamponSymptoms: string;
+  
+  // General Medical & Medication History
+  knownConditions: string[];
   medications: string;
-  affectingDailyLife: boolean;
-  severePain: boolean;
-  fainting: boolean;
-  vomiting: boolean;
 }
 
 interface TriageResult {
@@ -38,105 +84,114 @@ interface TriageResult {
 }
 
 const triageModel = (symptoms: SymptomData): TriageResult => {
-  let riskScore = 0;
-  const conditions: string[] = [];
-
+  // Emergency symptoms check
   if (
-    symptoms.severePain ||
-    symptoms.fainting ||
-    symptoms.heavyBleeding ||
-    symptoms.vomiting
+    symptoms.severePain === "yes" ||
+    symptoms.feverVomiting === "yes" ||
+    symptoms.tamponSymptoms === "yes"
   ) {
     return {
       level: "emergency",
       title: "🚨 Seek Immediate Medical Care",
-      description:
-        "Your symptoms require urgent medical evaluation. Please visit an emergency department or call emergency services.",
+      description: "Your symptoms require urgent medical evaluation. Please visit an emergency department or call emergency services.",
       recommendations: [
-        "Go to the nearest emergency department",
+        "Go to the nearest emergency department immediately",
         "Call emergency services if experiencing severe symptoms",
-        "Inform medical staff about sudden pain, fainting, or heavy bleeding",
+        "Inform medical staff about all symptoms reported",
       ],
       icon: <AlertCircle className="w-12 h-12 text-red-600" />,
       colorClasses: "bg-red-50 border-red-300",
     };
   }
 
-  const hasIrregularCycle = symptoms.periodRegular === "no";
-  const hasHormonalSigns =
-    symptoms.acne_hirsutism_weight || symptoms.difficulty_conceiving;
-  const hasPCODHistory = symptoms.familyHistory && hasIrregularCycle;
+  let riskScore = 0;
+  const conditions: string[] = [];
 
-  if (hasIrregularCycle) riskScore += 2;
-  if (hasHormonalSigns) riskScore += 2;
-  if (hasPCODHistory) riskScore += 3;
-  if (symptoms.difficulty_conceiving) riskScore += 2;
-
-  if (hasIrregularCycle && hasHormonalSigns) {
-    conditions.push("Possible PCOD/PCOS");
+  // PCOS risk factors
+  if (symptoms.periodsRegular === "no") riskScore += 2;
+  if (symptoms.acneHairSkin === "yes") riskScore += 2;
+  if (symptoms.weightGain === "yes") riskScore += 1;
+  if (symptoms.hairThinning === "yes") riskScore += 2;
+  if (symptoms.diabetesHistory === "yes") riskScore += 2;
+  
+  if ((symptoms.periodsRegular === "no" && symptoms.acneHairSkin === "yes") || 
+      (symptoms.weightGain === "yes" && symptoms.hairThinning === "yes")) {
+    conditions.push("Possible PCOS");
   }
 
-  const hasPelvicPain =
-    symptoms.pelvicPain && symptoms.symptomDuration !== "weeks";
-  const hasPainIntercourse = symptoms.painIntercourse;
-  const hasLongDuration = parseInt(symptoms.symptomDuration || "0") > 6;
-
-  if (hasPelvicPain && hasPainIntercourse) riskScore += 3;
-  if (hasPelvicPain && hasLongDuration) riskScore += 2;
-  if (hasPainIntercourse) riskScore += 1;
-
-  if ((hasPelvicPain || hasPainIntercourse) && hasLongDuration) {
+  // Endometriosis risk factors
+  if (symptoms.pelvicPain === "yes" && parseInt(symptoms.painScale) >= 7) riskScore += 3;
+  if (symptoms.chronicPelvicPain === "yes") riskScore += 2;
+  if (symptoms.painDuringActivities === "yes") riskScore += 2;
+  if (symptoms.bowelPain === "yes") riskScore += 2;
+  if (symptoms.radiatingPain === "yes") riskScore += 1;
+  if (symptoms.ovarianCysts === "yes") riskScore += 2;
+  
+  if ((symptoms.chronicPelvicPain === "yes" && symptoms.painDuringActivities === "yes") ||
+      (symptoms.bowelPain === "yes" && symptoms.radiatingPain === "yes")) {
     conditions.push("Possible Endometriosis");
   }
 
-  if (symptoms.heavyBleeding) {
-    riskScore += 2;
-    conditions.push("Possible Bleeding Disorder or Fibroids");
+  // Thyroid screening
+  if (symptoms.fatigue === "yes") riskScore += 1;
+  if (symptoms.temperatureSensitivity === "yes") riskScore += 1;
+  if (symptoms.weightChanges === "yes") riskScore += 1;
+  if (symptoms.moodChanges === "yes") riskScore += 1;
+  
+  if ([symptoms.fatigue, symptoms.temperatureSensitivity, symptoms.weightChanges, symptoms.moodChanges]
+      .filter(s => s === "yes").length >= 3) {
+    conditions.push("Possible Thyroid Disorder");
   }
 
-  if (symptoms.knownConditions?.includes("thyroid")) {
+  // Heavy bleeding/fibroids
+  if (symptoms.heavyBleeding === "yes") {
     riskScore += 2;
-    conditions.push("Known Thyroid Condition");
+    conditions.push("Possible Fibroids or Bleeding Disorder");
   }
 
-  if (symptoms.pelvicPain && !hasPainIntercourse) {
+  // UTI screening
+  if (symptoms.burningUrination === "yes" || symptoms.urinaryUrgency === "yes" || symptoms.urineChanges === "yes") {
+    conditions.push("Possible UTI");
     riskScore += 1;
-    if (!conditions.includes("Possible Endometriosis")) {
-      conditions.push("Possible Dysmenorrhea");
-    }
   }
 
-  if (riskScore >= 6 || (riskScore >= 4 && hasLongDuration)) {
+  // Breast health concerns
+  if (symptoms.breastLumps === "yes" || symptoms.nippleDischarge === "yes" || symptoms.breastSkinChanges === "yes") {
+    conditions.push("Breast Health Concern");
+    riskScore += 2;
+  }
+
+  // Fertility concerns
+  if (symptoms.conceivingDifficulty === "yes") {
+    riskScore += 2;
+    conditions.push("Fertility Concern");
+  }
+
+  // Determine triage level
+  if (riskScore >= 8 || conditions.includes("Breast Health Concern")) {
     return {
       level: "high",
-      title: "🟠 Moderate-High Risk - Doctor Referral Recommended",
-      description:
-        "Your symptoms suggest you may benefit from specialist evaluation. Please schedule a consultation with a gynecologist.",
+      title: "🟠 High Priority - Specialist Referral Recommended",
+      description: "Your symptoms suggest you should see a specialist for evaluation.",
       recommendations: [
-        "Schedule an appointment with a gynecologist within 2-4 weeks",
-        "Keep a symptom diary noting pain patterns, cycle dates, and triggers",
-        "Ask your doctor about: ultrasound screening, hormone tests, and family history implications",
-        "Discuss your fertility goals if applicable",
-        "Track symptoms affecting daily activities to share with your doctor",
+        "Schedule appointment with gynecologist within 1-2 weeks",
+        "Keep detailed symptom diary",
+        "Prepare list of questions for your doctor",
+        "Consider bringing a support person to appointment",
       ],
       icon: <AlertTriangle className="w-12 h-12 text-orange-600" />,
       colorClasses: "bg-orange-50 border-orange-300",
     };
-  } else if (
-    riskScore >= 3 ||
-    (symptoms.difficulty_conceiving && symptoms.periodRegular === "no")
-  ) {
+  } else if (riskScore >= 4) {
     return {
       level: "moderate",
-      title: "🟡 Moderate Risk - Schedule Doctor Visit",
-      description:
-        "Your symptoms warrant professional medical evaluation. Consider scheduling an appointment with your primary care physician or gynecologist.",
+      title: "🟡 Moderate Priority - Doctor Visit Recommended",
+      description: "Your symptoms warrant medical evaluation by your healthcare provider.",
       recommendations: [
-        "Schedule an appointment with your doctor within 4-8 weeks",
-        "Document your menstrual cycle (use a tracking app or diary)",
-        "Note any patterns in symptoms, pain, or bleeding",
-        "Prepare questions about your symptoms to ask your doctor",
-        "If symptoms worsen, seek earlier evaluation",
+        "Schedule appointment with your doctor within 2-4 weeks",
+        "Track symptoms and menstrual cycle",
+        "Note any patterns or triggers",
+        "Prepare questions about your symptoms",
       ],
       icon: <CheckCircle className="w-12 h-12 text-yellow-600" />,
       colorClasses: "bg-yellow-50 border-yellow-300",
@@ -144,15 +199,13 @@ const triageModel = (symptoms: SymptomData): TriageResult => {
   } else {
     return {
       level: "low",
-      title: "🟢 Low Risk - Monitor & Maintain Health",
-      description:
-        "Your current symptoms appear mild. Continue monitoring and maintain a healthy lifestyle.",
+      title: "🟢 Low Priority - Monitor and Self-Care",
+      description: "Your symptoms appear manageable with monitoring and self-care.",
       recommendations: [
-        "Track your menstrual cycle for 2-3 months to identify patterns",
-        "Maintain a symptom diary if you notice any changes",
-        "Practice stress management and regular exercise",
-        "Contact a doctor if symptoms worsen or new symptoms appear",
-        "Schedule regular check-ups with your healthcare provider",
+        "Continue tracking symptoms for patterns",
+        "Maintain healthy lifestyle habits",
+        "Contact doctor if symptoms worsen",
+        "Schedule routine check-ups as recommended",
       ],
       icon: <CheckCircle className="w-12 h-12 text-green-600" />,
       colorClasses: "bg-green-50 border-green-300",
@@ -164,22 +217,47 @@ export default function SymptomChecker() {
   const [step, setStep] = useState<"form" | "results">("form");
   const [formData, setFormData] = useState<SymptomData>({
     age: "",
+    pregnant: "",
+    genderAtBirth: "",
+    breastfeeding: "",
+    lastPeriod: "",
+    periodsRegular: "",
     cycleLength: "",
-    periodRegular: "",
-    pelvicPain: false,
-    heavyBleeding: false,
-    painIntercourse: false,
-    difficulty_conceiving: false,
-    acne_hirsutism_weight: false,
-    knownConditions: [],
-    familyHistory: false,
-    symptomDescription: "",
+    heavyBleeding: "",
+    pelvicPain: "",
+    painScale: "",
+    bleedingBetween: "",
+    missedPeriods: "",
+    chronicPelvicPain: "",
+    painInterference: "",
+    painDuringActivities: "",
     symptomDuration: "",
+    acneHairSkin: "",
+    weightGain: "",
+    hairThinning: "",
+    diabetesHistory: "",
+    bowelPain: "",
+    radiatingPain: "",
+    ovarianCysts: "",
+    fatigue: "",
+    temperatureSensitivity: "",
+    weightChanges: "",
+    moodChanges: "",
+    burningUrination: "",
+    urinaryUrgency: "",
+    urineChanges: "",
+    breastLumps: "",
+    nippleDischarge: "",
+    breastSkinChanges: "",
+    familyBreastCancer: "",
+    tryingConceive: "",
+    conceivingDifficulty: "",
+    pregnancyHistory: "",
+    severePain: "",
+    feverVomiting: "",
+    tamponSymptoms: "",
+    knownConditions: [],
     medications: "",
-    affectingDailyLife: false,
-    severePain: false,
-    fainting: false,
-    vomiting: false,
   });
   const [triageResult, setTriageResult] = useState<TriageResult | null>(null);
 
@@ -188,19 +266,11 @@ export default function SymptomChecker() {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) => {
-    const { name, value, type } = e.target;
-    if (type === "checkbox") {
-      const input = e.target as HTMLInputElement;
-      setFormData((prev) => ({
-        ...prev,
-        [name]: input.checked,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleConditionChange = (condition: string, checked: boolean) => {
@@ -347,277 +417,503 @@ export default function SymptomChecker() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Demographics */}
+          {/* Basic & Demographic */}
           <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">
-              Personal Information
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Basic & Demographic</h2>
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
-                  Age
-                </label>
+                <label className="block text-sm font-semibold text-slate-900 mb-2">Age</label>
                 <input
                   type="number"
                   name="age"
                   value={formData.age}
                   onChange={handleInputChange}
-                  placeholder="Enter your age"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 />
               </div>
+              
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
-                  Menstrual Cycle Length (days)
-                </label>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Are you currently pregnant or possibly pregnant?</label>
+                <div className="space-y-2">
+                  {["yes", "no", "unsure"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="pregnant"
+                        value={option}
+                        checked={formData.pregnant === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Gender assigned at birth</label>
+                <div className="space-y-2">
+                  {["female", "intersex", "other"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="genderAtBirth"
+                        value={option}
+                        checked={formData.genderAtBirth === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Are you currently breastfeeding?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="breastfeeding"
+                        value={option}
+                        checked={formData.breastfeeding === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-2">First day of last menstrual period</label>
+                <input
+                  type="date"
+                  name="lastPeriod"
+                  value={formData.lastPeriod}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Menstrual & Cycle History */}
+          <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Menstrual & Cycle History</h2>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Are your periods regular?</label>
+                <div className="space-y-2">
+                  {["yes", "no", "don't get periods"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="periodsRegular"
+                        value={option}
+                        checked={formData.periodsRegular === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-2">Average cycle length (days)</label>
                 <input
                   type="number"
                   name="cycleLength"
                   value={formData.cycleLength}
                   onChange={handleInputChange}
                   placeholder="e.g., 28"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 />
               </div>
-            </div>
 
-            <div className="mt-6">
-              <label className="block text-sm font-semibold text-slate-900 mb-3">
-                Are your periods regular?
-              </label>
-              <div className="space-y-2">
-                {["yes", "no", "unsure"].map((option) => (
-                  <label
-                    key={option}
-                    className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white transition"
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Do you experience heavy bleeding or pass large blood clots?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="heavyBleeding"
+                        value={option}
+                        checked={formData.heavyBleeding === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Do you experience pelvic or abdominal pain before or during periods?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="pelvicPain"
+                        value={option}
+                        checked={formData.pelvicPain === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {formData.pelvicPain === "yes" && (
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-2">Pain scale (0-10)</label>
+                  <select
+                    name="painScale"
+                    value={formData.painScale}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                   >
-                    <input
-                      type="radio"
-                      name="periodRegular"
-                      value={option}
-                      checked={formData.periodRegular === option}
-                      onChange={handleInputChange}
-                      className="w-4 h-4 text-purple-600 cursor-pointer"
-                    />
-                    <span className="text-slate-700 capitalize font-medium">
-                      {option}
-                    </span>
-                  </label>
-                ))}
+                    <option value="">Select pain level</option>
+                    {Array.from({length: 11}, (_, i) => (
+                      <option key={i} value={i}>{i} - {i === 0 ? "No pain" : i <= 3 ? "Mild" : i <= 6 ? "Moderate" : "Severe"}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Do you bleed between periods or after sex?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="bleedingBetween"
+                        value={option}
+                        checked={formData.bleedingBetween === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Have you ever missed 3+ consecutive periods when not pregnant?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="missedPeriods"
+                        value={option}
+                        checked={formData.missedPeriods === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Symptoms */}
+          {/* Pain & Symptom Severity */}
           <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Symptoms</h2>
-            <div className="space-y-3">
-              {[
-                {
-                  name: "pelvicPain",
-                  label: "Pelvic pain before or during periods?",
-                },
-                { name: "heavyBleeding", label: "Heavy bleeding or clots?" },
-                { name: "painIntercourse", label: "Pain during intercourse?" },
-                {
-                  name: "difficulty_conceiving",
-                  label: "Difficulty conceiving?",
-                },
-                {
-                  name: "acne_hirsutism_weight",
-                  label: "Acne, facial hair growth, or weight gain?",
-                },
-                {
-                  name: "affectingDailyLife",
-                  label: "Are symptoms affecting daily activities?",
-                },
-              ].map((symptom) => (
-                <label
-                  key={symptom.name}
-                  className="flex items-center gap-3 cursor-pointer p-3 rounded hover:bg-white transition"
-                >
-                  <input
-                    type="checkbox"
-                    name={symptom.name}
-                    checked={
-                      formData[symptom.name as keyof SymptomData] as boolean
-                    }
-                    onChange={handleInputChange}
-                    className="w-5 h-5 text-purple-600 rounded cursor-pointer"
-                  />
-                  <span className="text-slate-700 font-medium">
-                    {symptom.label}
-                  </span>
-                </label>
-              ))}
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Pain & Symptom Severity</h2>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Do you have chronic pelvic pain outside of your period?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="chronicPelvicPain"
+                        value={option}
+                        checked={formData.chronicPelvicPain === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Does pain interfere with daily activities, work, or sleep?</label>
+                <div className="space-y-2">
+                  {["none", "mild", "moderate", "severe"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="painInterference"
+                        value={option}
+                        checked={formData.painInterference === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Does pain worsen during sex, bowel movements, or urination?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="painDuringActivities"
+                        value={option}
+                        checked={formData.painDuringActivities === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">How long have your symptoms been present?</label>
+                <div className="space-y-2">
+                  {["<1 week", "1-4 weeks", "1-6 months", ">6 months", "years"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="symptomDuration"
+                        value={option}
+                        checked={formData.symptomDuration === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Red Flags */}
+          {/* PCOS & Hormonal Screening */}
+          <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">PCOS & Hormonal Screening</h2>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Have you noticed acne, excess facial/body hair, or dark patches of skin?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="acneHairSkin"
+                        value={option}
+                        checked={formData.acneHairSkin === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Have you experienced unexplained weight gain or difficulty losing weight?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="weightGain"
+                        value={option}
+                        checked={formData.weightGain === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Do you have hair thinning or hair loss on the scalp?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="hairThinning"
+                        value={option}
+                        checked={formData.hairThinning === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Have you ever been diagnosed with high insulin, prediabetes, or type 2 diabetes?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="diabetesHistory"
+                        value={option}
+                        checked={formData.diabetesHistory === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Red-Flag / Emergency Symptoms */}
           <div className="bg-red-50 rounded-2xl p-8 border border-red-200">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">
-              ⚠️ Urgent Symptoms
-            </h2>
-            <p className="text-slate-700 mb-4 font-medium">
-              If you experience any of the following, seek immediate medical
-              care:
-            </p>
-            <div className="space-y-3">
-              {[
-                { name: "severePain", label: "Sudden severe abdominal pain?" },
-                {
-                  name: "fainting",
-                  label: "Fainting or dizziness with bleeding?",
-                },
-                { name: "vomiting", label: "Fever or vomiting with pain?" },
-              ].map((symptom) => (
-                <label
-                  key={symptom.name}
-                  className="flex items-center gap-3 cursor-pointer p-3 rounded hover:bg-red-100 transition"
-                >
-                  <input
-                    type="checkbox"
-                    name={symptom.name}
-                    checked={
-                      formData[symptom.name as keyof SymptomData] as boolean
-                    }
-                    onChange={handleInputChange}
-                    className="w-5 h-5 text-red-600 rounded cursor-pointer"
-                  />
-                  <span className="text-slate-700 font-semibold">
-                    {symptom.label}
-                  </span>
-                </label>
-              ))}
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">⚠️ Red-Flag / Emergency Symptoms</h2>
+            <p className="text-slate-700 mb-4 font-medium">If you experience any of the following, seek immediate medical care:</p>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Sudden severe abdominal or pelvic pain?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="severePain"
+                        value={option}
+                        checked={formData.severePain === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-red-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Fever, vomiting, or dizziness with bleeding or pain?</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="feverVomiting"
+                        value={option}
+                        checked={formData.feverVomiting === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-red-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Using a tampon AND experiencing sudden fever, rash, confusion, or low blood pressure? (TSS screen)</label>
+                <div className="space-y-2">
+                  {["yes", "no"].map((option) => (
+                    <label key={option} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="tamponSymptoms"
+                        value={option}
+                        checked={formData.tamponSymptoms === option}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-red-600"
+                      />
+                      <span className="capitalize">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Medical History */}
+          {/* General Medical & Medication History */}
           <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">
-              Medical History
-            </h2>
-
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-slate-900 mb-3">
-                Any known conditions?
-              </label>
-              <div className="space-y-2">
-                {["PCOD", "endometriosis", "thyroid", "anemia", "weight"].map(
-                  (condition) => (
-                    <label
-                      key={condition}
-                      className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white transition"
-                    >
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">General Medical & Medication History</h2>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">Have you been diagnosed with any of the following?</label>
+                <div className="space-y-2">
+                  {["PCOS", "Endometriosis", "Thyroid disorder", "Anemia", "Diabetes", "None", "Other"].map((condition) => (
+                    <label key={condition} className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={formData.knownConditions.includes(condition)}
-                        onChange={(e) =>
-                          handleConditionChange(condition, e.target.checked)
-                        }
-                        className="w-5 h-5 text-purple-600 rounded cursor-pointer"
+                        onChange={(e) => handleConditionChange(condition, e.target.checked)}
+                        className="w-4 h-4 text-purple-600"
                       />
-                      <span className="text-slate-700 capitalize font-medium">
-                        {condition}
-                      </span>
+                      <span>{condition}</span>
                     </label>
-                  ),
-                )}
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-2">List medications or treatments (if any)</label>
+                <textarea
+                  name="medications"
+                  value={formData.medications}
+                  onChange={handleInputChange}
+                  placeholder="List any medications, supplements, or treatments..."
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none"
+                  rows={3}
+                />
               </div>
             </div>
-
-            <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white transition mb-6">
-              <input
-                type="checkbox"
-                name="familyHistory"
-                checked={formData.familyHistory}
-                onChange={handleInputChange}
-                className="w-5 h-5 text-purple-600 rounded cursor-pointer"
-              />
-              <span className="text-slate-700 font-medium">
-                Family history of hormonal or reproductive issues?
-              </span>
-            </label>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
-                How long have you had these symptoms?
-              </label>
-              <select
-                name="symptomDuration"
-                value={formData.symptomDuration}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-              >
-                <option value="">Select duration...</option>
-                <option value="weeks">Less than 1 month</option>
-                <option value="1">1 month</option>
-                <option value="3">2-3 months</option>
-                <option value="6">3-6 months</option>
-                <option value="12">6-12 months</option>
-                <option value="24">1-2 years</option>
-                <option value="60">More than 2 years</option>
-              </select>
-            </div>
           </div>
 
-          {/* Additional Info */}
-          <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">
-              Additional Information
-            </h2>
-
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
-                Any medications or treatments?
-              </label>
-              <textarea
-                name="medications"
-                value={formData.medications}
-                onChange={handleInputChange}
-                placeholder="List any medications, supplements, or treatments..."
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition resize-none"
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
-                Describe your symptoms in your own words
-              </label>
-              <textarea
-                name="symptomDescription"
-                value={formData.symptomDescription}
-                onChange={handleInputChange}
-                placeholder="Please describe your symptoms, when they started, and any patterns you've noticed..."
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition resize-none"
-                rows={4}
-              />
-            </div>
-          </div>
-
+          {/* Additional screening sections would go here - Endometriosis, Thyroid, UTI, Breast Health, Fertility sections */}
+          
           {/* Consent */}
           <div className="bg-gradient-to-br from-purple-50 to-cyan-50 rounded-2xl p-8 border border-purple-200">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">
-              Privacy & Usage
-            </h2>
+            <h2 className="text-xl font-bold text-slate-900 mb-4">Privacy & Usage</h2>
             <p className="text-slate-700 mb-4 leading-relaxed">
-              Your responses are provided for educational purposes only and do
-              not constitute medical advice. This tool is not a substitute for
-              professional medical evaluation.
+              Your responses are provided for educational purposes only and do not constitute medical advice. 
+              This tool is not a substitute for professional medical evaluation.
             </p>
             <p className="text-sm text-slate-600">
-              💡 <strong>Tip:</strong> Share your results and symptom notes with
-              your doctor for a comprehensive evaluation.
+              💡 <strong>Tip:</strong> Share your results and symptom notes with your doctor for a comprehensive evaluation.
             </p>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-xl font-bold text-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
           >
-            Get Your Triage Assessment
+            Get Your Assessment
           </button>
 
           <Link
