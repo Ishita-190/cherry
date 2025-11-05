@@ -21,9 +21,9 @@ export default function Index() {
             <a href="#resources" className="text-sm font-medium text-slate-700 hover:text-purple-600 transition">
               Resources
             </a>
-            <button className="px-6 py-2 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-lg font-medium hover:shadow-lg transition-all">
+            <a href="/symptom-checker" className="px-6 py-2 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-lg font-medium hover:shadow-lg transition-all inline-block">
               Get Started
-            </button>
+            </a>
           </div>
         </div>
       </nav>
@@ -47,9 +47,9 @@ export default function Index() {
                 AIML-powered awareness, diagnosis support, and research collaboration for PCOD, endometriosis, and women's health disorders
               </p>
               <div className="flex gap-4">
-                <button className="px-8 py-3 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-xl transition-all flex items-center gap-2">
+                <a href="/symptom-checker" className="px-8 py-3 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-xl transition-all flex items-center gap-2 w-fit">
                   Start Symptom Check <ArrowRight className="w-4 h-4" />
-                </button>
+                </a>
                 <button className="px-8 py-3 border-2 border-slate-300 text-slate-700 rounded-lg font-semibold hover:bg-slate-50 transition">
                   Learn More
                 </button>
@@ -483,9 +483,9 @@ export default function Index() {
             Get personalized symptom guidance, learn about your condition, and help advance research for women's health
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-white text-purple-600 rounded-lg font-bold text-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+            <a href="/symptom-checker" className="px-8 py-4 bg-white text-purple-600 rounded-lg font-bold text-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
               Start Symptom Check <ArrowRight className="w-5 h-5" />
-            </button>
+            </a>
             <button className="px-8 py-4 border-2 border-white text-white rounded-lg font-bold text-lg hover:bg-white/10 transition">
               Learn More About Research
             </button>
@@ -502,7 +502,7 @@ export default function Index() {
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center">
                   <Heart className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-white">AIML4Women</span>
+                <span className="font-bold text-white">Cherry</span>
               </div>
               <p className="text-sm">
                 AI-powered awareness, triage, and diagnostic support for women's health
@@ -538,7 +538,7 @@ export default function Index() {
               ⚠️ <strong>Disclaimer:</strong> This tool provides educational information and suggested triage guidance. It does not replace professional medical diagnosis or treatment. Always consult a healthcare provider.
             </p>
             <p className="mt-4 text-slate-500">
-              © 2024 AIML4Women. All rights reserved. Built with care for women's health.
+              © 2024 Cherry. All rights reserved. Built with care for women's health.
             </p>
           </div>
         </div>
