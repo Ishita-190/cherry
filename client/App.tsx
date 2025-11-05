@@ -12,6 +12,8 @@ import SymptomChecker from "./pages/SymptomChecker";
 import PCOD from "./pages/diseases/PCOD";
 import Endometriosis from "./pages/diseases/Endometriosis";
 import WomensHealthGap from "./pages/diseases/WomensHealthGap";
+import PeriodTracker from "./pages/PeriodTracker";
+import OurMission from "./pages/OurMission";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,8 @@ const App = () => (
           <Route path="/diseases/pcod" element={<PCOD />} />
           <Route path="/diseases/endometriosis" element={<Endometriosis />} />
           <Route path="/diseases/womens-health-gap" element={<WomensHealthGap />} />
+          <Route path="/period-tracker" element={<PeriodTracker />} />
+          <Route path="/our-mission" element={<OurMission />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

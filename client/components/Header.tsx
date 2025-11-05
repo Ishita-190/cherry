@@ -7,7 +7,8 @@ export default function Header() {
 
   const navLinks = [
     { label: "Features", href: "/#features" },
-    { label: "Resources", href: "/#resources" },
+    { label: "Period Tracker", href: "/period-tracker" },
+    { label: "Our Mission", href: "/our-mission" },
     { label: "Symptom Checker", href: "/symptom-checker" },
   ];
 
