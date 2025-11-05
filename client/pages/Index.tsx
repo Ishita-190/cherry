@@ -11,7 +11,7 @@ export default function Index() {
               <Heart className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent">
-              AIML4Women
+              Cherry
             </span>
           </div>
           <div className="flex items-center gap-8">
@@ -205,7 +205,7 @@ export default function Index() {
               </p>
               <div className="space-y-4">
                 <div className="border-l-4 border-green-500 bg-green-50 rounded p-4">
-                  <p className="font-semibold text-green-900 mb-1">��� Low Risk (Monitor & Educate)</p>
+                  <p className="font-semibold text-green-900 mb-1">🟢 Low Risk (Monitor & Educate)</p>
                   <p className="text-sm text-green-800">Mild cycle irregularities only, no severe pain → Track your cycle for 2 months and see a doctor if symptoms worsen</p>
                 </div>
                 <div className="border-l-4 border-yellow-500 bg-yellow-50 rounded p-4">
