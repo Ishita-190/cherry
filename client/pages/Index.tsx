@@ -507,7 +507,7 @@ export default function Index() {
                   Learn more →
                 </span>
               </Link>
-            ))
+            ))}
           </div>
         </div>
       </section>
