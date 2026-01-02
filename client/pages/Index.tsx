@@ -116,17 +116,17 @@ export default function Index() {
               {
                 stat: "6-13%",
                 title: "PCOD Prevalence",
-                desc: "Affects 6–13% of reproductive-aged women worldwide, yet up to 70% remain undiagnosed. — WHO",
+                desc: "Affects 6–13% of reproductive-aged women worldwide, yet up to 70% remain undiagnosed",
               },
               {
                 stat: "6-8 yrs",
                 title: "Diagnostic Delay",
-                desc: "Endometriosis diagnosis takes median 6–8 years. Many patients endure years of pain before recognition. — PMC+1",
+                desc: "Endometriosis diagnosis takes median 6–8 years. Many patients endure years of pain before recognition.",
               },
               {
                 stat: "⚠️",
                 title: "Research Gaps",
-                desc: "Women's health is underfunded relative to disease burden, creating evidence gaps and sparse research. — Nature",
+                desc: "Women's health is underfunded relative to disease burden, creating evidence gaps and sparse research.",
               },
             ].map((item) => (
               <div
