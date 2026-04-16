@@ -95,7 +95,7 @@ const triageModel = (symptoms: SymptomData): TriageResult => {
       title: "🚨 Seek Immediate Medical Care",
       description: "Your symptoms require urgent medical evaluation. Please visit an emergency department or call emergency services.",
       recommendations: [
-        "Go to the nearest emergency department immediately",
+        "Please go to the nearest emergency department immediately",
         "Call emergency services if experiencing severe symptoms",
         "Inform medical staff about all symptoms reported",
       ],
